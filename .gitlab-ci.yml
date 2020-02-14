@@ -44,4 +44,4 @@ pypi:
     - python setup.py sdist bdist_wheel
     - twine upload dist/*
   only:
-    - master
+    - tags
