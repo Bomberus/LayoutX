@@ -1,0 +1,37 @@
+site_name: LayoutX, never write GUI spaghetti code again 
+nav:
+  - Introduction: index.md
+  - Architecture: architecture.md
+  - Layout Syntax: layout.md
+  - View: view.md
+  - Store: store.md
+  - Widgets: widgets.md
+  - Advanced Guide: advanced.md
+  - Demos: showcase.md
+docs_dir: src-docs
+site_dir: public
+theme:
+  favicon: 'img/favicon.ico'
+  name: 'material'
+  palette:
+    primary: 'deep orange'
+    accent: 'red'
+plugins:
+  - search
+markdown_extensions:
+  - admonition
+  - footnotes
+  - codehilite:
+      guess_lang: false
+      linenums: true
+  - toc:
+      permalink: true
+  - plantuml_markdown:
+      server: http://www.plantuml.com/plantuml  # PlantUML server, for remote rendering
+  - pymdownx.snippets:
+      base_path: src-docs
+  - pymdownx.inlinehilite:
+  - pymdownx.superfences:
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.details

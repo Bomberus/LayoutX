@@ -1,0 +1,5 @@
+ttkthemes
+pypugjs
+rx
+ttkwidgets
+pygments

@@ -1,0 +1,47 @@
+stages:
+  - test
+  - deploy
+
+.test:
+  script:
+    - "apk add --update git xvfb python3-tkinter build-base zlib-dev jpeg-dev"
+    - "exec Xvfb :8 -screen 0 640x480x24 2>/tmp/Xvfb.log &"
+    - "python -m venv /opt/venv"
+    - "source /opt/venv/bin/activate; pip install --upgrade pip"
+    - 'source /opt/venv/bin/activate; DISPLAY=:8 pip install -e ".[more_widgets,styles]"'
+    - "source /opt/venv/bin/activate; DISPLAY=:8 python -m layoutx.install_tkdnd"
+    - "source /opt/venv/bin/activate; DISPLAY=:8 python setup.py test"
+
+test-3.7:
+  extends: ".test"
+  stage: "test"
+  image: "python:3.7-alpine"
+
+test-3.8:
+  extends: ".test"
+  stage: "test"
+  image: "python:3.8-alpine"
+
+pages:
+  image: python:3.7-alpine
+  script:
+    - pip install -r requirements-docs.txt
+    - mkdocs build
+  artifacts:
+    paths:
+      - public
+  stage: deploy
+  only:
+    - master
+
+pypi:
+  image: python:3
+  stage: deploy
+  cache: {}
+  script:
+    - pip install -U twine
+    - python setup.py check sdist bdist  # This will fail if your creds are bad.
+    - python setup.py sdist bdist_wheel
+    - twine upload dist/*
+  only:
+    - master
