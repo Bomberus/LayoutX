@@ -39,7 +39,7 @@ setuptools.setup(
       'lxdesigner = layoutx.tools.designer:main'
     ]
   },
-  version='1.0',
+  version='1.2',
   author='Pascal Maximilian Bremer',
   description="Declarative tkinter layout engine with reactive data binding",
   long_description=long_description,
