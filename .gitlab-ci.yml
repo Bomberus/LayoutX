@@ -23,8 +23,9 @@ test-3.8:
   image: "python:3.8-alpine"
 
 pages:
-  image: python:3.7-alpine
+  image: python:3.8-alpine
   script:
+    - "apk add --update alpine-sdk"
     - pip install -r requirements-docs.txt
     - mkdocs build
   artifacts:
