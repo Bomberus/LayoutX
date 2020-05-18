@@ -18,7 +18,10 @@ class CheckBox(Widget):
     )
     
   def on_changed_value(self, value):
-    self._value.set(int(value))
+    if value:
+      self._value.set(int(value))
+    else:
+      self._value.set(int(0))
 
   def on_disposed(self):
     self._value.trace_remove("write", self._trace)

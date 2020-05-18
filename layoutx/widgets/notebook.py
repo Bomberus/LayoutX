@@ -1,58 +1,22 @@
-from .container import Container
-from tkinter    import ttk
+from .widget import Widget
+from tkinter import ttk
+from tkinter.constants import HORIZONTAL, VERTICAL
 
-
-class Notebook(Container):
-  def __init__(self, **kwargs):
-    self._tk = ttk.Notebook(
-      master=kwargs.get("master").container
-    )
-    self._tk.bind("<<NotebookTabChanged>>", self._on_tab_changed)
-
-    Container.__init__(self, **kwargs)
-    self._reserved_attr += ["text"]
-
-  def _on_tab_changed(self, event):
-    if "index" in self._prop_mapping:
-      self.set_connect_state_value("index", self._tk.select())    
-
-  def on_changed_index(self, value):
-    if value != "":
-      self._tk.select(value)
-
-  def _change_tab_text(self, child):
-    def wrapper(value):
-      self._tk.tab(child, text = value)
-    return wrapper
-
-  def apply_children_grid(self):
-    # Calculate text
-    for index, child in enumerate(self._children):
-      # Clear old observer      
-      for key in list(self._prop_mapping.keys()).copy():
-        if key.startswith("childtext_"):
-          self._prop_mapping[key]["observer"].dispose()
-          del self._prop_mapping[key]
-      
-      self._tk.add(child.tk)
-      
-      observer = self._view.store.select_exp(exp = f"f\"\"\"{self.text}\"\"\"", path_mapping=child._path_mapping)
-      self._prop_mapping[f"childtext_{index}"] = {
-        "observer": observer.subscribe(self._change_tab_text(child.tk))
-      }
-
-  def clear_children(self):
-    for child in self._children:
-      self._tk.forget(child.tk)
-      child.dispose()
-    self._children = []
-
-  def hide_child(self, widget):
-    self._tk.hide(widget)
+class Notebook(Widget):
+  def __init__(self,master, **kwargs):
+    super().__init__(
+      tk=ttk.Notebook(
+        master=master), **kwargs)
   
-  def show_child(self, widget):
-    self._tk.add(widget)
+  def forget_children(self):
+    for child in self.tk.tabs():
+      self.tk.forget(child)
 
-  def dispose(self):
-    self._tk.unbind("<<NotebookTabChanged>>")
-    super().dispose()
+  def place_children(self, changed_value=None):
+    self.forget_children()
+
+    for child in self.children:
+      if not child.hidden:
+        self.tk.add(child.tk, text=child.text)
+
+      child._node.placed()

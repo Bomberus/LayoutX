@@ -45,7 +45,7 @@ def safe_set(data, keys: List[str], value):
 
 safe_list = [
   'abs', 'all', 'any', 'ascii', 'bin', 'callable', 
-  'chr', 'dir', 'divmod', 'format', 'getattr',
+  'chr', 'dir', 'divmod', 'format','getattr',
   'hasattr', 'hash', 'hex', 'id', 'input', 'isinstance', 
   'issubclass', 'iter', 'len', 'max', 'min', 'next', 'oct', 
   'ord', 'pow', 'repr', 'round', 'sorted', 'sum', 'bool', 

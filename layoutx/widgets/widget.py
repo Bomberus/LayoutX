@@ -158,7 +158,7 @@ class Widget:
   
   def set_prop_value(self, key, value):
     if key in self._node.prop_mapping:
-      if "setter" in self._node.prop_mapping[key]:
+      if "setter" in self._node.prop_mapping[key] and not self.hidden:
         self._node.prop_mapping[key]["setter"](value)
 
   def forget_children(self):

@@ -360,8 +360,9 @@ class RegistryNode:
         self._prop_mapping[name]["value"] = value
       
         for cb in self._prop_mapping[name]["subscriber"]:
-          cb(self.view.execute_in_loop(value))
-          self._view.logger.debug(f"{self.path} [{name}] changed {value}")
+          if not (self.widget.hidden if self.widget else False) or name == 'if':
+            cb(self.view.execute_in_loop(value))
+            self._view.logger.debug(f"{self.path} [{name}] changed {value}")
 
     return wrapper
 

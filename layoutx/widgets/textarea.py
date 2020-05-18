@@ -197,11 +197,12 @@ class TextArea(Widget):
       self._value_setter(self._get_text())
     
   def on_changed_value(self, value):
-    index = self._tk.index(tk.INSERT)
-    self._tk.delete("1.0", tk.END)
-    self._tk.insert(tk.END, value)
-    self._tk.mark_set("insert", index)
-    self._tk.see(index)
+    if value:
+      index = self._tk.index(tk.INSERT)
+      self._tk.delete("1.0", tk.END)
+      self._tk.insert(tk.END, value)
+      self._tk.mark_set("insert", index)
+      self._tk.see(index)
     
     self._highlight()
 
