@@ -4,7 +4,7 @@ stages:
 
 .test:
   script:
-    - "apk add --update git xvfb python3-tkinter build-base zlib-dev jpeg-dev"
+    - "apk add --update alpine-sdk git xvfb python3-tkinter build-base zlib-dev jpeg-dev"
     - "exec Xvfb :8 -screen 0 640x480x24 2>/tmp/Xvfb.log &"
     - "python -m venv /opt/venv"
     - "source /opt/venv/bin/activate; pip install --upgrade pip"
