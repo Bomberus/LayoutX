@@ -12,10 +12,11 @@ from .spinbox      import SpinBox
 from .sheet        import Sheet
 from .radiobutton  import RadioButton
 from .notebook     import Notebook
+from .calendar     import CalendarWidget
 
 __all__ = [
   "Widget", "SplitPane", "Label", 
-  "Box", "ScrollFrame", "Button", "DropTarget", 
+  "Box", "ScrollFrame", "Button", "DropTarget", "CalendarWidget",
   "Sep", "CheckBox", "ProgressBar", "SpinBox", "Sheet", "RadioButton", "Notebook"
 ]
 
@@ -24,9 +25,8 @@ try:
   from .combobox     import ComboBox
   from .textarea     import TextArea
   from .scale        import Scale
-  from .calendar     import Calendar
 
-  __all__ = __all__ + [ "FileInput", "Input", "ComboBox", "TextArea", "Scale", "Calendar" ]
+  __all__ = __all__ + [ "FileInput", "Input", "ComboBox", "TextArea", "Scale" ]
 except ImportError:
   # ttkwidgets not installed
   pass
