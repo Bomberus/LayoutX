@@ -50,7 +50,8 @@ setuptools.setup(
   test_suite="tests",
   install_requires=[
     "pypugjs",
-    "rx"
+    "rx",
+    "tksheet"
   ],
   extras_require = {
     "more_widgets":  ["ttkwidgets", "pygments"],
