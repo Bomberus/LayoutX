@@ -4,6 +4,8 @@ from tkinter     import ttk, StringVar
 from ttkwidgets.autocomplete  import AutocompleteEntry
 from ttkwidgets.autocomplete  import AutocompleteCombobox
 from ..tkDnD import DND_FILES
+from pathlib import Path
+
 
 class BaseInput(Widget):
   def __init__(self, tk, **kwargs):
@@ -17,7 +19,7 @@ class BaseInput(Widget):
   
   def on_changed_suggestion(self, value):
     if self._textv.get() == None or self._textv.get() == "":
-      if len(value) > 0:
+      if value and len(value) > 0:
         self._setter(value[0])
     self._tk.set_completion_list(value if value else [])
 
@@ -30,6 +32,12 @@ class BaseInput(Widget):
 
 class FileInput(BaseInput):
   def __init__(self, master, **kwargs):
+    self._onlydir = False
+    self._ext = ('Any File', '.*')
+    self._rootdir = None
+    self._excludefiles = []
+    self._suggestions = []
+    
     self._textv = StringVar()
     self._box = ttk.Frame(master=master)
     self._box.grid_columnconfigure(0, weight=1)
@@ -41,8 +49,7 @@ class FileInput(BaseInput):
         completevalues=[],
         textvariable=self._textv
     )
-    
-    self._onlydir = False
+
     # Redirect configure to input
     setattr(self._box, "config", self._input.config)
     setattr(self._box, "configure", self._input.configure)
@@ -52,9 +59,11 @@ class FileInput(BaseInput):
     setattr(self._box, "bind", self._input.bind)
     setattr(self._box, "set_completion_list", self._input.set_completion_list)
 
-
     super().__init__(tk=self._box, **kwargs)
     self.connect_to_prop("onlydir", self._on_onlydir_changed)
+    self.connect_to_prop("ext", self._on_ext_changed)
+    self.connect_to_prop("rootdir", self._on_rootdir_changed)
+    self.connect_to_prop("excludefiles", self._on_excludefiles_changed)
     
     self._input.drop_target_register(DND_FILES)
     self._input.dnd_bind('<<Drop>>', self._drop)
@@ -63,8 +72,29 @@ class FileInput(BaseInput):
     self._btn = ttk.Button(master=self._box, command=self._load_file, text="Browse...")
     self._btn.grid(row=0, column=1)
 
+  def _on_excludefiles_changed(self, value):
+    self._excludefiles = value if value else []
+    self._set_suggestions() 
+  
   def _on_onlydir_changed(self, value):
     self._onlydir = value
+  
+  def on_changed_suggestion(self, value):
+    self._suggestions = value if value else []
+    super().on_changed_suggestion(value)
+
+  def _set_suggestions(self):
+    if self._rootdir and Path(self._rootdir).exists():
+      suggestions =  list(filter(lambda fn: Path(fn).stem not in self._excludefiles, [str(fn) for fn in Path(self._rootdir).rglob(f"*{self._ext[1]}")]))
+      self._input.set_completion_list(self._suggestions + suggestions)
+
+  def _on_ext_changed(self, value):
+    self._ext = value if value else ('Any File', '.*')
+    self._set_suggestions()
+    
+  def _on_rootdir_changed(self, value):
+    self._rootdir = value
+    self._set_suggestions()
 
   @property
   def container(self):
@@ -79,10 +109,10 @@ class FileInput(BaseInput):
     if self._onlydir:
       f = tk.filedialog.askdirectory() 
     else:
-      f = tk.filedialog.askopenfilename(filetypes=[('Any File', '.*')])
+      f = tk.filedialog.askopenfilename(filetypes=[self._ext])
     if f is None or f == '':
       return
-    self._textv.set(f)
+    self._textv.set(str(Path(f)))
 
   def _drop(self, event):
     if event.data:

@@ -21,7 +21,7 @@ class ComboBox(Widget):
 
   def on_changed_suggestion(self, value):
     if self._textv.get() == None or self._textv.get() == "":
-      if len(value) > 0:
+      if value and len(value) > 0:
         self._setter(value[0])
     self._tk.set_completion_list(value if value else [])
 

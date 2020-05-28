@@ -10,17 +10,18 @@ class RadioButton(Widget):
         variable=self._v), **kwargs
     )
     self._setter = self.connect_to_prop("value", self.on_changed_value)
-    self._setter = self.connect_to_prop("sel", self.on_changed_sel)
+    self.connect_to_prop("sel", self.on_changed_sel)
     self._trace = self._v.trace_add("write", 
       lambda *_: self._setter(self._v.get())
     )
 
-  def on_changed_sel(self, value):
+  def on_changed_value(self, value):
     self._v.set(value)
 
-  def on_changed_value(self, value):
+  def on_changed_sel(self, value):
     self._tk.config(value=value)
 
   def on_disposed(self):
     self._v.trace_remove("write", self._trace)
+    self._trace = None
     self._setter = None

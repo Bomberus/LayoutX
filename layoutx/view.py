@@ -31,6 +31,8 @@ class View:
     self._logger = weakref.proxy(logger) if logger else logging.getLogger(self.__class__.__name__)
     self._logger.setLevel(logging.DEBUG)
     self._tk = tkinter if tkinter else tk.Toplevel()
+    if tkinter is None:
+      self._tk.protocol("WM_DELETE_WINDOW", self.dispose)
 
     if self.icon == None:
       import inspect

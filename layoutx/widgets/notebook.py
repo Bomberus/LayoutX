@@ -16,7 +16,7 @@ class Notebook(Widget):
     self.forget_children()
 
     for child in self.children:
-      if not child.hidden:
+      if child and not child.hidden:
         self.tk.add(child.tk, text=child.text)
 
-      child._node.placed()
+        child._node.placed()

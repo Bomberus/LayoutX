@@ -1,12 +1,12 @@
 from .widget import Widget
-from tkinter import Checkbutton, IntVar
+from tkinter import ttk, IntVar
 
 
 class CheckBox(Widget):
   def __init__(self, master, **kwargs):
     self._value = IntVar()
     super().__init__(
-      tk=Checkbutton(
+      tk=ttk.Checkbutton(
         master=master, 
         variable=self._value
       ), **kwargs
@@ -18,10 +18,7 @@ class CheckBox(Widget):
     )
     
   def on_changed_value(self, value):
-    if value:
-      self._value.set(int(value))
-    else:
-      self._value.set(int(0))
+    self._value.set(value)
 
   def on_disposed(self):
     self._value.trace_remove("write", self._trace)

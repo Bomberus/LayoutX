@@ -89,9 +89,9 @@ class Widget:
       font.update(self._get_app_config("font"))
       self._font = tkFont.Font(**font)
       self._apply_style_attribute("font", self._font)
-      
+
     # Read Layout Attributes
-    for prop in [prop for prop in self._node.prop_mapping.keys() if prop not in ["style", "value"]]:
+    for prop in [prop for prop in self._node.prop_mapping.keys() if prop not in ["if", "style", "value"]]:
       if prop == "if":
         self.connect_to_prop("if", self._on_changed_visibility)
       elif prop == "enabled":
@@ -112,7 +112,7 @@ class Widget:
         self.connect_to_prop(prop, partial(self._configure_tk, prop))
       elif prop[0] == ":" and prop[-1] == ":":
         self.connect_to_prop(prop, partial(self._on_bind_event, f"<{prop[1:-1]}>"))
-  
+
   # Lifecycle Methods
   def on_init(self):
     pass
@@ -163,7 +163,8 @@ class Widget:
 
   def forget_children(self):
     for child in self.children:
-      child.tk.grid_forget()
+      if child and child.tk:
+        child.tk.grid_forget()
   
   def place_children(self, changed_value = None):
     self.forget_children()
@@ -177,7 +178,7 @@ class Widget:
       self.container.grid_rowconfigure(0, weight=1)
     
     for child in self.children:
-      if not child.hidden:
+      if child:
         
         grid_info = {
           "padx":   int(child.get_attr("padx", "0")), 
@@ -207,7 +208,7 @@ class Widget:
             weight=int(child.get_attr("weight", "1")))
         child.tk.grid(**grid_info)
         index += 1
-      child._node.placed()
+        child._node.placed()
 
   def hide_child(self):
     self.place_children()
@@ -218,6 +219,7 @@ class Widget:
   def dispose(self):
     self.view.logger.debug(f"DISPOSE widget {self.path}")
     self._tk.destroy()
+    self._tk = None
 
   # internal methods
   def _get_app_style(self):
@@ -261,13 +263,15 @@ class Widget:
     self._apply_style_attribute("foreground", value)
   
   def _on_changed_visibility(self, value):
-    self._hidden = not bool(value)
+    self._hidden = not bool(value)   
     if not self.parent:
       return
 
     if value:
+      self._node.activate()
       self.parent.widget.show_child()
     else:
+      self._node.deactivate()
       self.parent.widget.hide_child()
   
   def _on_changed_state(self, value):

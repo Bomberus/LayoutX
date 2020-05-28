@@ -374,7 +374,7 @@ class Calendar(ttk.Frame):
 class CalendarWidget(Widget):
   def __init__(self, master, **kwargs):
     self._textv = StringVar()
-    super().__init__(tk=Datepicker(master, datevar=self._textv), **kwargs)
+    super().__init__(tk=Datepicker(master, datevar=self._textv, dateformat=kwargs.get("node").get_attr("dateformat", "%Y-%m-%d")), **kwargs)
 
     self._setter = self.connect_to_prop("value", self.on_changed_value)
     self._trace = self._textv.trace_add("write", 

@@ -67,16 +67,51 @@ class RegistryNode:
       view=self._view
     )
     widget_node._init_binding()
+    if "if" in widget_node._prop_mapping:
+      widget_node.add_prop_subscriber("if", widget_node.toggle_visible)
+      if not widget_node._prop_mapping["if"]["value"]:
+        return widget_node
     widget_node._init_tk(widget_class=widget_class)
     if node.count_children > 0:
       widget_node._init_repeater(node.get_attribute("for"))
     widget_node.widget._init()
     return widget_node
 
+  def toggle_visible(self, value):
+    if value: 
+      self.activate()
+    else:
+      self.deactivate()
+
+  def activate(self):
+    from layoutx import app
+    self._init_tk(widget_class=app.get_widget_cls(self._node.tag))
+    if self._node.count_children > 0:
+      self._init_repeater(self._node.get_attribute("for"))
+    self.widget._init()
+    if not self.parent:
+      return
+    self.parent.widget.show_child()
+
+  def deactivate(self):
+    for child in self.children:
+      child.dispose()
+    if self._prop_mapping:
+      for key in [key for key in self._prop_mapping.keys() if key != "if"]:
+        if "observer" in self._prop_mapping[key]:
+          self._prop_mapping[key]["observer"].dispose()
+          del self._prop_mapping[key]["observer"]
+    if self._widget:
+      self._widget.dispose()
+      self._widget = None
+    if not self.parent:
+      return
+    self.parent.widget.hide_child()
+
   def remove_node(self, node):
+    self._nodes.remove(node)
     if self.has_node(node):
       node.dispose()
-      self._nodes.remove(node)
 
   def get_attr(self, key, default=None):
     return self._node.get_attribute(key, default)
@@ -192,6 +227,7 @@ class RegistryNode:
     self._path_mapping = None
     if self._widget:
       self._widget.dispose()
+      self._widget = None
     self._nodes = []
     self._node = None
 
@@ -360,7 +396,7 @@ class RegistryNode:
         self._prop_mapping[name]["value"] = value
       
         for cb in self._prop_mapping[name]["subscriber"]:
-          if not (self.widget.hidden if self.widget else False) or name == 'if':
+          if (self._prop_mapping["if"]["value"] if "if" in self._prop_mapping else True) or name != 'value':
             cb(self.view.execute_in_loop(value))
             self._view.logger.debug(f"{self.path} [{name}] changed {value}")
 

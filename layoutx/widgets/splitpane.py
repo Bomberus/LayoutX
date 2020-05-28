@@ -20,11 +20,11 @@ class SplitPane(Widget):
 
     index = 0
     for child in self.children:
-      if not child.hidden:
+      if child and not child.hidden:
         self.tk.add(child.tk)
         self.tk.pane(index, **{
           "weight": int(self.get_attr("weight", "1"))
         })
         index += 1
 
-      child._node.placed()
+        child._node.placed()
