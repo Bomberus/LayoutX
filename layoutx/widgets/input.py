@@ -85,7 +85,13 @@ class FileInput(BaseInput):
 
   def _set_suggestions(self):
     if self._rootdir and Path(self._rootdir).exists():
-      suggestions =  list(filter(lambda fn: Path(fn).stem not in self._excludefiles, [str(fn) for fn in Path(self._rootdir).rglob(f"*{self._ext[1]}")]))
+      get_suggestion_from_ext = lambda ext: list(filter(lambda fn: Path(fn).stem not in self._excludefiles, [str(fn) for fn in Path(self._rootdir).rglob(f"*{ext[1]}")]))
+      
+      if isinstance(self._ext, list):
+        from functools import reduce
+        suggestions = reduce(lambda a, curr: a + get_suggestion_from_ext(self._ext), [])
+      else:
+        suggestions = get_suggestion_from_ext(self._ext)
       self._input.set_completion_list(self._suggestions + suggestions)
 
   def _on_ext_changed(self, value):
@@ -109,7 +115,7 @@ class FileInput(BaseInput):
     if self._onlydir:
       f = tk.filedialog.askdirectory() 
     else:
-      f = tk.filedialog.askopenfilename(filetypes=[self._ext])
+      f = tk.filedialog.askopenfilename(filetypes=self._ext if isinstance(self._ext, list) else [self._ext])
     if f is None or f == '':
       return
     self._textv.set(str(Path(f)))

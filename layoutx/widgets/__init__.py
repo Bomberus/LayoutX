@@ -13,11 +13,13 @@ from .sheet        import Sheet
 from .radiobutton  import RadioButton
 from .notebook     import Notebook
 from .calendar     import CalendarWidget
+from .imageviewer  import ImageViewer
 
 __all__ = [
   "Widget", "SplitPane", "Label", 
   "Box", "ScrollFrame", "Button", "DropTarget", "CalendarWidget",
-  "Sep", "CheckBox", "ProgressBar", "SpinBox", "Sheet", "RadioButton", "Notebook"
+  "Sep", "CheckBox", "ProgressBar", "SpinBox", "Sheet", "RadioButton", "Notebook",
+  "ImageViewer"
 ]
 
 try:

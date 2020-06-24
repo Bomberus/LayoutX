@@ -53,7 +53,7 @@ class Store:
       except:
         # Could not evaluate, probably wrong binding
         if logger:
-          logger.warn(f"Error could not evaluate binding", exp)
+          logger.warn(f"Error could not evaluate binding")
           logger.warn(format_exc(limit=2))
         return None
     return self.select([wrapper])
