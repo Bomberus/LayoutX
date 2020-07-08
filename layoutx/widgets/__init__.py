@@ -14,12 +14,13 @@ from .radiobutton  import RadioButton
 from .notebook     import Notebook
 from .calendar     import CalendarWidget
 from .imageviewer  import ImageViewer
+from .tree         import TreeDisplay
 
 __all__ = [
   "Widget", "SplitPane", "Label", 
   "Box", "ScrollFrame", "Button", "DropTarget", "CalendarWidget",
   "Sep", "CheckBox", "ProgressBar", "SpinBox", "Sheet", "RadioButton", "Notebook",
-  "ImageViewer"
+  "ImageViewer", "TreeDisplay"
 ]
 
 try:

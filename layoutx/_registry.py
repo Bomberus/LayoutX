@@ -290,7 +290,7 @@ class RegistryNode:
     self._for_in = ''.join(self._for_in)
     #list( (x for x in enumerate([1,2,3]) if x[1] != 2 ) )
 
-    self._gen_exp = f"list( ((index, {self._for_target}) for (index, {self._for_target}) {self._for_in}))"         
+    self._gen_exp = f"list( ((index, {self._for_target}) for (index, {self._for_target}) {self._for_in}))"        
     self._for_tree = ast.parse(self._gen_exp).body[0].value
     self._for_iter   = deepcopy(self._for_tree.args[0].generators[0].iter)
     #self._for_ifs    = self._for_tree.args[0].args[0].generators[0].ifs
@@ -306,6 +306,8 @@ class RegistryNode:
       self._for_tree, 
       path_mapping=self._path_mapping
     )
+    #import astor
+    #print(astor.codegen.to_source(self._for_tree))
     
     observer = self._view.store.select_compiled(self._iter_compiled, built_in=self.get_built_in(), logger=self.view.logger)
 
