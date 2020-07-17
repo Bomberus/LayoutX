@@ -17,9 +17,9 @@ class ImageViewer(Widget):
     self._canvasImage.init(master)
     super().__init__(tk=self._canvasImage._CanvasImage__imframe, **kwargs)
     self.connect_to_prop("value", self._on_image_changed)
-
+  
   def _on_image_changed(self, path):
-    if Path(path).exists() and path != '':
+    if not isinstance(path, str) or Path(path).exists() and path != '':
       if self._canvasImage.busy:
         self._canvasImage.queue = path
       else:
@@ -65,7 +65,7 @@ class CanvasImage:
     Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS  # suppress DecompressionBombError for big image
     with warnings.catch_warnings():  # suppress DecompressionBombWarning for big image
       warnings.simplefilter('ignore')
-      self.__image = Image.open(self.path)  # open image, but down't load it into RAM
+      self.__image =  Image.open(self.path)  # open image, but down't load it into RAM
     self.imwidth, self.imheight = self.__image.size  # public for outer classes
     if self.imwidth * self.imheight > self.__huge_size * self.__huge_size and \
             self.__image.tile[0][0] == 'raw':  # only raw images could be tiled
