@@ -40,15 +40,15 @@ class CanvasImage:
   busy = False
   queue = ""
   path = ""
-  init = False
+  init_widget = False
   master = None
 
-  def grid(self, **kw):
-    """ Put CanvasImage widget on the parent widget """
-    self.__imframe.grid(**kw)  # place CanvasImage widget on the grid
-    self.__imframe.grid(sticky='nswe')  # make frame container sticky
-    self.__imframe.rowconfigure(0, weight=1)  # make canvas expandable
-    self.__imframe.columnconfigure(0, weight=1)
+  def _on_resize(self, *_):
+    #self.master.grid_columnconfigure(0, weight=1)
+    #self.master.grid_rowconfigure(0, weight=1)
+    self.__imframe.grid_columnconfigure(0, weight=1)
+    self.__imframe.grid_rowconfigure(0, weight=1)
+    self.__imframe.update()
 
   def new_image(self, path):
     self.queue = ""
@@ -91,14 +91,14 @@ class CanvasImage:
       h /= self.__reduction  # divide on reduction degree
       self.__pyramid.append(self.__pyramid[-1].resize((int(w), int(h)), self.__filter))
     # Put image into container rectangle and use it to set proper coordinates to the image
-    self.container = self.canvas.create_rectangle((0, 0, self.imwidth, self.imheight), width=0)
+    self.wrapper = self.canvas.create_rectangle((0, 0, self.imwidth, self.imheight), width=0)
     # Create MD5 hash sum from the image. Public for outer classes
     self.md5 = hashlib.md5(self.__pyramid[0].tobytes()).hexdigest()
     #self.__center_img()
     #self.__show_image()  # show image on the canvas
     self.canvas.focus_set()  # set focus on the canvas
     self.busy = False
-    self.init = True
+    self.init_widget = True
     if self.queue != "":
       self.new_image(self.queue)
 
@@ -106,7 +106,10 @@ class CanvasImage:
   def init(self, placeholder):
     """ Initialize the ImageFrame """
     self.master = placeholder
-    self.__imframe = ttk.Frame(placeholder)  # placeholder of the ImageFrame object
+    self.__imframe = ttk.Frame(placeholder)  # placeholder of the ImageFrame object    
+    self.__imframe.bind('<Configure>', self._on_resize)
+
+    #setattr(self.__imframe, "grid_forget", self.grid_forget)
     # Vertical and horizontal scrollbars for canvas
     hbar = AutoScrollbar(self.__imframe, orient='horizontal')
     vbar = AutoScrollbar(self.__imframe, orient='vertical')
@@ -126,9 +129,6 @@ class CanvasImage:
     self.canvas.bind('<MouseWheel>', self.__wheel)  # zoom for Windows and MacOS, but not Linux
     self.canvas.bind('<Button-5>',   self.__wheel)  # zoom for Linux, wheel scroll down
     self.canvas.bind('<Button-4>',   self.__wheel)  # zoom for Linux, wheel scroll up
-
-    self.__imframe.grid_columnconfigure(0, weight=1)
-    self.__imframe.grid_rowconfigure(0, weight=1)
 
   def smaller(self):
     """ Resize image proportionally and return smaller image """
@@ -201,7 +201,7 @@ class CanvasImage:
     if self.path == '' or self.busy:
       return
     
-    box_image = self.canvas.coords(self.container)  # get image area
+    box_image = self.canvas.coords(self.wrapper)  # get image area
     box_canvas = (self.canvas.canvasx(0),  # get visible area of the canvas
             self.canvas.canvasy(0),
             self.canvas.canvasx(self.canvas.winfo_width()),
@@ -210,6 +210,8 @@ class CanvasImage:
     # Get scroll region box
     box_scroll = [min(box_img_int[0], box_canvas[0]), min(box_img_int[1], box_canvas[1]),
             max(box_img_int[2], box_canvas[2]), max(box_img_int[3], box_canvas[3])]
+    #print("box_canvas", box_canvas)
+    #print("box_scroll", box_scroll)
     # Horizontal part of the image is in the visible area
     if  box_scroll[0] == box_canvas[0] and box_scroll[2] == box_canvas[2]:
       box_scroll[0]  = box_img_int[0]
@@ -248,20 +250,20 @@ class CanvasImage:
 
   def __move_from(self, event):
     """ Remember previous coordinates for scrolling with the mouse """
-    if not self.init or self.busy:
+    if not self.init_widget or self.busy:
       return
     self.canvas.scan_mark(event.x, event.y)
 
   def __move_to(self, event):
     """ Drag (move) canvas to the new position """
-    if not self.init or self.busy:
+    if not self.init_widget or self.busy:
       return
     self.canvas.scan_dragto(event.x, event.y, gain=1)
     self.__show_image()  # zoom tile and show it on the canvas
 
   def outside(self, x, y):
     """ Checks if the point (x,y) is outside the image area """
-    bbox = self.canvas.coords(self.container)  # get image area
+    bbox = self.canvas.coords(self.wrapper)  # get image area
     if bbox[0] < x < bbox[2] and bbox[1] < y < bbox[3]:
       return False  # point (x,y) is inside the image area
     else:
@@ -284,7 +286,7 @@ class CanvasImage:
     
   def __wheel(self, event):
     """ Zoom with mouse wheel """
-    if not self.init or self.busy:
+    if not self.init_widget or self.busy:
       return
     x = self.canvas.canvasx(event.x)  # get coordinates of the event on the canvas
     y = self.canvas.canvasy(event.y)
