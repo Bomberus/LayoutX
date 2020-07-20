@@ -163,8 +163,8 @@ class Widget:
 
   def forget_children(self):
     for child in self.children:
-      if child and child.container:
-        child.container.grid_forget()
+      if child and child.tk:
+        child.tk.grid_forget()
   
   def place_children(self, changed_value = None):
     self.forget_children()
@@ -206,7 +206,7 @@ class Widget:
             pad=int(child.get_attr("pad", "0")), 
             minsize=int(child.get_attr("minsize", "0")),
             weight=int(child.get_attr("weight", "1")))
-        child.container.grid(**grid_info)
+        child.tk.grid(**grid_info)
         index += 1
         child._node.placed()
 
